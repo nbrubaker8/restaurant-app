@@ -2,6 +2,8 @@ import React from "react";
 
 import Burger from "../../components/Burger/Burger";
 import BuildControls from "../../components/Burger/BuildControls/BuildControls";
+import Modal from "../../components/UI/Modal/Modal";
+import OrderSummary from "../../components/Burger/OrderSummary/OrderSummary";
 
 const INGREDIENT_PRICES = {
   salad: 0.5,
@@ -19,6 +21,7 @@ export default class BurgerBuilder extends React.Component {
       meat: 0,
     },
     totalPrice: 4,
+    purchasing: false,
   };
 
   addIngredientHandler = (type) => {
@@ -43,8 +46,17 @@ export default class BurgerBuilder extends React.Component {
     }));
   };
 
+  onOrder = () => this.setState({ purchasing: true });
+
+  purchaseCanceler = () => this.setState({ purchasing: false });
+
+  purchaseContinue = () => {
+    window.alert("Thank you for your order!");
+  };
+
   render() {
-    const disabledControls = Object.entries(this.state.ingredients).reduce(
+    const ingredientEntries = Object.entries(this.state.ingredients);
+    const disabledControls = ingredientEntries.reduce(
       (listOfDisabled, ingredient) => {
         ingredient[1] === 0 && listOfDisabled.push(ingredient[0]);
         return listOfDisabled;
@@ -58,7 +70,20 @@ export default class BurgerBuilder extends React.Component {
           addIngredient={this.addIngredientHandler}
           subtractIngredient={this.subtractIngredientHandler}
           disabledControls={disabledControls}
+          totalPrice={this.state.totalPrice}
+          onOrder={this.onOrder}
         />
+        <Modal
+          show={this.state.purchasing}
+          onBackdropClick={this.purchaseCanceler}
+        >
+          <OrderSummary
+            ingredients={ingredientEntries}
+            purchaseCancel={this.purchaseCanceler}
+            purchaseContinue={this.purchaseContinue}
+            totalPrice={this.state.totalPrice}
+          />
+        </Modal>
       </React.Fragment>
     );
   }
